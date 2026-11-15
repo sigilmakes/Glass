@@ -1,9 +1,7 @@
 # Contributing to Glass
 
-Read the root README and the development guide first. Glass keeps ordinary LiveSync behaviour and adds account-based access; avoid unrelated sync-engine changes.
+See the [development guide](docs/development.md) for setup and test commands.
 
-Keep server logic in `server/`, deployment templates in `charts/`, and Obsidian host integration in `plugin/`. Follow `plugin/AGENTS.md` for imported source. Preserve upstream licences and source provenance.
+The gateway is in `server/`, the Helm chart is in `charts/glass/`, and Glass-specific Obsidian code is in `plugin/src/glass/`. The rest of `plugin/` is the vendored LiveSync source.
 
-Before submitting, run the type checks, focused tests, builds, and chart renders. Authentication changes also require real Authelia/CouchDB integration tests. State clearly whether Android and desktop acceptance tests were performed; mocked HTTP tests are not device verification.
-
-Never include credentials, bearer tokens, local fixture files, or real vault contents in commits, screenshots, logs, or bug reports. Security reports should describe affected versions and reproduction using synthetic data.
+The integration suite runs against local Authelia and CouchDB. Android and Linux Obsidian UI testing is separate from that suite.

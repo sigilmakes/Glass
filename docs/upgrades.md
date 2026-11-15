@@ -1,6 +1,6 @@
 # Upgrades and releases
 
-The root package, Glass plugin manifest, server, and chart share a release version. LiveSync's original version is recorded separately in `UPSTREAM.md`. Do not replace upstream attribution with Glass authorship.
+The root package, Glass plugin manifest, server, and chart share a release version. LiveSync's original version is recorded separately in `UPSTREAM.md`.
 
 ## Before an upgrade
 
