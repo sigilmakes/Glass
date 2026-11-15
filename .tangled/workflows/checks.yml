@@ -1,0 +1,30 @@
+when:
+    - event: push
+      branch: [main]
+    - event: pull_request
+      branch: [main]
+    - event: manual
+engine: microvm
+image: nixos
+dependencies:
+    - nodejs_24
+    - git
+    - kubernetes-helm
+    - zip
+environment:
+    NPM_CONFIG_CACHE: .npm
+cache:
+    - key: npm
+      hash: [server/package-lock.json, plugin/package-lock.json]
+      paths: [.npm]
+steps:
+    - name: Install locked dependencies
+      command: npm run install:all
+    - name: Check types
+      command: npm run check
+    - name: Run tests
+      command: npm test
+    - name: Build plug-in and gateway
+      command: npm run build
+    - name: Validate Helm chart
+      command: npm run chart:check

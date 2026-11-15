@@ -1,0 +1,24 @@
+when:
+    - event: push
+      tag: [v*]
+engine: microvm
+image: nixos
+dependencies:
+    - nodejs_24
+    - git
+    - kubernetes-helm
+    - zip
+    - unstable#atproto-goat
+virtualisation:
+    docker: true
+steps:
+    - name: Install locked dependencies
+      command: npm run install:all
+    - name: Check release source
+      command: npm run check && npm test
+    - name: Build release
+      command: npm run build && npm run release:package
+    - name: Publish configured OCI artifacts
+      command: node scripts/publish-release.mjs
+    - name: Attach plug-in and chart release files
+      command: node scripts/publish-artifacts.mjs

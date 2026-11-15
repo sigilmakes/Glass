@@ -1,0 +1,26 @@
+when:
+    - event: push
+      branch: [main]
+    - event: pull_request
+      branch: [main]
+    - event: manual
+engine: microvm
+image: nixos
+dependencies:
+    - nodejs_24
+    - git
+    - chromium
+    - openssl
+virtualisation:
+    docker: true
+environment:
+    GLASS_CHROMIUM: /run/current-system/sw/bin/chromium
+steps:
+    - name: Install locked dependencies
+      command: npm run install:all
+    - name: Generate isolated development identities
+      command: node dev/init.mjs
+    - name: Start stock Authelia, CouchDB and Glass
+      command: docker compose --env-file dev/.local/compose.env -f dev/compose.yaml up --build -d --wait
+    - name: Exercise browser login and two-user replication
+      command: GLASS_INTEGRATION=1 npm run test:integration
