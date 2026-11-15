@@ -49,7 +49,9 @@ services:
             SQLITE_PATH: /data/glass.sqlite
             NODE_EXTRA_CA_CERTS: /secrets/tls.crt
         volumes:
-            - ./.local:/secrets:ro
+            - ./.local/couchdb-admin-password:/secrets/couchdb-admin-password:ro
+            - ./.local/couchdb-proxy-secret:/secrets/couchdb-proxy-secret:ro
+            - ./.local/tls.crt:/secrets/tls.crt:ro
             - gateway:/data
         depends_on:
             couchdb:

@@ -18,6 +18,8 @@ steps:
       command: npm run install:all
     - name: Verify development password encoding
       command: node --test dev/password-hash.test.mjs
+    - name: Verify development secret mount permissions
+      command: node --test dev/secret-mount.test.mjs
     - name: Generate isolated development identities
       command: node dev/init.mjs
     - name: Start stock Authelia, CouchDB and Glass
@@ -27,8 +29,8 @@ steps:
           else
               status=$?
               docker compose --env-file dev/.local/compose.env -f dev/compose.yaml ps --all
-              docker compose --env-file dev/.local/compose.env -f dev/compose.yaml logs --no-color --tail 100 authelia
-              docker inspect --format '{{json .State.Health}}' glass-dev-authelia-1
+              docker compose --env-file dev/.local/compose.env -f dev/compose.yaml logs --no-color --tail 100 authelia gateway
+              docker inspect --format '{{json .State.Health}}' glass-dev-authelia-1 glass-dev-gateway-1
               exit "$status"
           fi
     - name: Exercise browser login and two-user replication
