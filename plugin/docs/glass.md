@@ -10,7 +10,7 @@ Use **Advanced LiveSync setup** for the upstream configuration flow. Glass does 
 
 ## Credentials and other devices
 
-Every device signs in separately. Sessions and pending PKCE state use Obsidian's public `App.secretStorage`, introduced in 1.11.4. There is no plaintext fallback. Credentials are not placed in plug-in settings, Setup URIs, or synchronised settings. SecretStorage is application storage shared with installed plug-ins; Glass does not claim OS-backed encryption or isolation from other plug-ins.
+Every device signs in separately. Sessions and pending PKCE state use Obsidian's public `App.secretStorage`, introduced in 1.11.4. There is no plaintext fallback. Credentials are not placed in plug-in settings, Setup URIs, or synchronised settings. SecretStorage is application storage shared with installed plug-ins; Glass does not guarantee OS-backed encryption or isolation from other plug-ins.
 
 Sign-in uses public-client PKCE S256, PAR, stock Authelia bearer scopes, and a browser callback containing only the code and state. Pending state expires after ten minutes. Refresh operations are serialised, and replacement tokens are stored before another refresh can start. Glass refreshes thirty seconds before expiry. An uncertain refresh failure requires signing in again rather than replaying a possibly consumed token.
 
@@ -20,11 +20,11 @@ Sign-in uses public-client PKCE S256, PAR, stock Authelia bearer scopes, and a b
 
 Glass configures the CouchDB root as `<gateway>/sync`, with the opaque database name stored separately. It adds bearer authentication at the host transport boundary, not through saved headers. Database reset requests use the owner-checked gateway rebuild API. End-to-end encryption is not required by Glass.
 
-Initial downloads always use supported **Standard Fetch**. Accelerated Fast Fetch currently bypasses the host transport in upstream Commonlib. Glass blocks that path even if **Use Internal API** is changed. Enabling accelerated Fast Fetch requires a published Commonlib authenticated transport hook, not a copied dependency.
+Initial downloads always use supported **Standard Fetch**. Accelerated Fast Fetch currently bypasses the host transport in upstream Commonlib. Glass blocks that path even if **Use Internal API** is changed. Accelerated Fast Fetch requires a published Commonlib authenticated transport hook.
 
 CouchDB administrator checks and configuration fixes are not available through the gateway. The server operator manages those settings. Other upstream diagnostics and ordinary replication retain their existing behaviour.
 
-Obsidian `requestUrl` has no public redirect or cancellation controls. Authenticated HTTPS gateway and identity endpoints must not redirect. The web transport requests redirect rejection. Native desktop and mobile behaviour still needs hands-on verification; build and unit checks are not native-runtime evidence.
+Obsidian `requestUrl` has no public redirect or cancellation controls. Authenticated HTTPS gateway and identity endpoints must not redirect. The web transport requests redirect rejection. Android and Linux desktop login and sync have not been tested in the native Obsidian UI.
 
 ## References
 

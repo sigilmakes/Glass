@@ -1,6 +1,6 @@
 # Glass
 
-SSO-enabled self-hosted livesync for obsidian.
+Synchronise Obsidian vaults through a self-hosted Glass server and Authelia sign-in.
 
 An MIT-licensed fork of [Self-hosted LiveSync](https://github.com/vrtmrz/obsidian-livesync) 1.0.50 by vorotamoroz.
 
