@@ -10,3 +10,7 @@ plugin/node_modules/
 *.sqlite-wal
 coverage/
 artifacts/
+.npm/
+.cache/
+dev/.generated/
+dev/.local*/
