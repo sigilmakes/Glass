@@ -1,0 +1,11 @@
+authelia:
+    enabled: true
+    configMap:
+        existingConfigMap: glass-authelia-config
+    secret:
+        existingSecret: glass-authelia-secrets
+        additionalSecrets:
+            glass-authelia-identity:
+                path: identity
+    ingress:
+        enabled: false

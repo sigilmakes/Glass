@@ -1,0 +1,243 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": [
+        "image",
+        "publicUrl",
+        "auth",
+        "secrets"
+    ],
+    "properties": {
+        "image": {
+            "type": "object",
+            "required": [
+                "repository",
+                "tag"
+            ],
+            "properties": {
+                "repository": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "tag": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "pullPolicy": {
+                    "type": "string",
+                    "enum": [
+                        "Always",
+                        "IfNotPresent",
+                        "Never"
+                    ]
+                }
+            }
+        },
+        "imagePullSecrets": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                }
+            }
+        },
+        "publicUrl": {
+            "type": "string",
+            "pattern": "^https://[^/?#\\s]+/?$"
+        },
+        "auth": {
+            "type": "object",
+            "required": [
+                "issuer",
+                "clientId",
+                "audience"
+            ],
+            "properties": {
+                "issuer": {
+                    "type": "string",
+                    "pattern": "^https://[^/?#\\s]+/?$"
+                },
+                "clientId": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "audience": {
+                    "type": "string",
+                    "pattern": "^https://[^/?#\\s]+/?$"
+                },
+                "authzUrl": {
+                    "type": "string",
+                    "pattern": "^(https?://[^\\s]+)?$"
+                }
+            }
+        },
+        "secrets": {
+            "type": "object",
+            "required": [
+                "existingSecret"
+            ],
+            "properties": {
+                "existingSecret": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "adminUsernameKey": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "adminPasswordKey": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "proxySecretKey": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
+        "storage": {
+            "type": "object",
+            "properties": {
+                "gateway": {
+                    "type": "object",
+                    "properties": {
+                        "size": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "storageClass": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "existingClaim": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "couchdb": {
+                    "type": "object",
+                    "properties": {
+                        "size": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "storageClass": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "existingClaim": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "couchdb": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
+        "resources": {
+            "type": "object",
+            "properties": {
+                "gateway": {
+                    "type": "object"
+                },
+                "couchdb": {
+                    "type": "object"
+                }
+            }
+        },
+        "ingress": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "className": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "tlsSecretName": {
+                    "type": "string"
+                },
+                "annotations": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            },
+            "if": {
+                "properties": {
+                    "enabled": {
+                        "const": true
+                    }
+                },
+                "required": [
+                    "enabled"
+                ]
+            },
+            "then": {
+                "required": [
+                    "host"
+                ],
+                "properties": {
+                    "host": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                }
+            }
+        },
+        "networkPolicy": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "gatewayIngress": {
+                    "type": "array",
+                    "items": {
+                        "type": "object"
+                    }
+                }
+            }
+        },
+        "authelia": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "pod": {
+                    "type": "object",
+                    "properties": {
+                        "replicas": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

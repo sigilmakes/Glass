@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: {{ include "glass.name" . }}
+    labels:
+        {{- include "glass.labels" . | nindent 8 }}
+spec:
+    replicas: 1
+    strategy:
+        type: Recreate
+    selector:
+        matchLabels:
+            app: {{ include "glass.name" . }}
+    template:
+        metadata:
+            labels:
+                app: {{ include "glass.name" . }}
+                {{- include "glass.labels" . | nindent 16 }}
+        spec:
+            automountServiceAccountToken: false
+            {{- with .Values.imagePullSecrets }}
+            imagePullSecrets:
+                {{- toYaml . | nindent 16 }}
+            {{- end }}
+            securityContext:
+                runAsNonRoot: true
+                runAsUser: 1000
+                runAsGroup: 1000
+                fsGroup: 1000
+                seccompProfile:
+                    type: RuntimeDefault
+            containers:
+                - name: gateway
+                  image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+                  imagePullPolicy: {{ .Values.image.pullPolicy }}
+                  securityContext:
+                      allowPrivilegeEscalation: false
+                      readOnlyRootFilesystem: true
+                      capabilities:
+                          drop: [ALL]
+                  ports:
+                      - name: http
+                        containerPort: 3000
+                  env:
+                      - name: HOST
+                        value: 0.0.0.0
+                      - name: PORT
+                        value: "3000"
+                      - name: PUBLIC_URL
+                        value: {{ .Values.publicUrl | quote }}
+                      - name: AUTH_ISSUER
+                        value: {{ .Values.auth.issuer | quote }}
+                      {{- if .Values.auth.authzUrl }}
+                      - name: AUTH_AUTHZ_URL
+                        value: {{ .Values.auth.authzUrl | quote }}
+                      {{- else if .Values.authelia.enabled }}
+                      - name: AUTH_AUTHZ_URL
+                        value: http://{{ include "authelia.name" .Subcharts.authelia }}:{{ .Values.authelia.service.port }}/api/authz/forward-auth
+                      {{- end }}
+                      - name: AUTH_CLIENT_ID
+                        value: {{ .Values.auth.clientId | quote }}
+                      - name: AUTH_AUDIENCE
+                        value: {{ .Values.auth.audience | quote }}
+                      - name: SQLITE_PATH
+                        value: /data/glass.sqlite
+                      - name: COUCHDB_URL
+                        value: http://{{ include "glass.name" . }}-couchdb:5984
+                      - name: COUCHDB_ADMIN_USERNAME
+                        valueFrom:
+                            secretKeyRef:
+                                name: {{ .Values.secrets.existingSecret }}
+                                key: {{ .Values.secrets.adminUsernameKey }}
+                      - name: COUCHDB_ADMIN_PASSWORD_FILE
+                        value: /run/secrets/couchdb/admin-password
+                      - name: COUCHDB_PROXY_SECRET_FILE
+                        value: /run/secrets/couchdb/proxy-secret
+                  startupProbe:
+                      httpGet: {path: /healthz, port: http}
+                      periodSeconds: 5
+                      failureThreshold: 60
+                  readinessProbe:
+                      httpGet: {path: /healthz, port: http}
+                  livenessProbe:
+                      httpGet: {path: /healthz, port: http}
+                  resources:
+                      {{- toYaml .Values.resources.gateway | nindent 22 }}
+                  volumeMounts:
+                      - name: data
+                        mountPath: /data
+                      - name: secrets
+                        mountPath: /run/secrets/couchdb
+                        readOnly: true
+            volumes:
+                - name: data
+                  persistentVolumeClaim:
+                      claimName: {{ .Values.storage.gateway.existingClaim | default (printf "%s-gateway" (include "glass.name" .)) }}
+                - name: secrets
+                  secret:
+                      secretName: {{ .Values.secrets.existingSecret }}
+                      items:
+                          - key: {{ .Values.secrets.adminPasswordKey }}
+                            path: admin-password
+                          - key: {{ .Values.secrets.proxySecretKey }}
+                            path: proxy-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: {{ include "glass.name" . }}
+spec:
+    type: ClusterIP
+    selector:
+        app: {{ include "glass.name" . }}
+    ports:
+        - name: http
+          port: 3000
+          targetPort: http

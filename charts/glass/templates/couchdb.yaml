@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: {{ include "glass.name" . }}-couchdb
+    labels:
+        {{- include "glass.labels" . | nindent 8 }}
+spec:
+    replicas: 1
+    strategy:
+        type: Recreate
+    selector:
+        matchLabels:
+            app: {{ include "glass.name" . }}-couchdb
+    template:
+        metadata:
+            labels:
+                app: {{ include "glass.name" . }}-couchdb
+                {{- include "glass.labels" . | nindent 16 }}
+        spec:
+            automountServiceAccountToken: false
+            securityContext:
+                runAsNonRoot: true
+                runAsUser: 5984
+                runAsGroup: 5984
+                fsGroup: 5984
+                seccompProfile:
+                    type: RuntimeDefault
+            initContainers:
+                - name: initialize-storage
+                  image: {{ .Values.couchdb.image | quote }}
+                  command: [mkdir, -p, /state/data, /state/config]
+                  securityContext:
+                      allowPrivilegeEscalation: false
+                      capabilities:
+                          drop: [ALL]
+                  volumeMounts:
+                      - name: data
+                        mountPath: /state
+            containers:
+                - name: couchdb
+                  image: {{ .Values.couchdb.image | quote }}
+                  securityContext:
+                      allowPrivilegeEscalation: false
+                      capabilities:
+                          drop: [ALL]
+                  ports:
+                      - name: http
+                        containerPort: 5984
+                  env:
+                      - name: COUCHDB_USER
+                        valueFrom:
+                            secretKeyRef:
+                                name: {{ .Values.secrets.existingSecret }}
+                                key: {{ .Values.secrets.adminUsernameKey }}
+                      - name: COUCHDB_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: {{ .Values.secrets.existingSecret }}
+                                key: {{ .Values.secrets.adminPasswordKey }}
+                  startupProbe:
+                      httpGet: {path: /_up, port: http}
+                      periodSeconds: 5
+                      failureThreshold: 60
+                  readinessProbe:
+                      httpGet: {path: /_up, port: http}
+                  livenessProbe:
+                      httpGet: {path: /_up, port: http}
+                  resources:
+                      {{- toYaml .Values.resources.couchdb | nindent 22 }}
+                  volumeMounts:
+                      - name: data
+                        mountPath: /opt/couchdb/data
+                        subPath: data
+                      - name: data
+                        mountPath: /opt/couchdb/etc/local.d
+                        subPath: config
+                      - name: config
+                        mountPath: /opt/couchdb/etc/local.d/10-single-node.ini
+                        subPath: single-node.ini
+            volumes:
+                - name: data
+                  persistentVolumeClaim:
+                      claimName: {{ .Values.storage.couchdb.existingClaim | default (printf "%s-couchdb" (include "glass.name" .)) }}
+                - name: config
+                  configMap:
+                      name: {{ include "glass.name" . }}-couchdb
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: {{ include "glass.name" . }}-couchdb
+data:
+    single-node.ini: |
+        [couchdb]
+        single_node = true
+        [chttpd]
+        authentication_handlers = {chttpd_auth, proxy_authentication_handler}, {chttpd_auth, cookie_authentication_handler}, {chttpd_auth, default_authentication_handler}
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: {{ include "glass.name" . }}-couchdb
+spec:
+    type: ClusterIP
+    selector:
+        app: {{ include "glass.name" . }}-couchdb
+    ports:
+        - name: http
+          port: 5984
+          targetPort: http

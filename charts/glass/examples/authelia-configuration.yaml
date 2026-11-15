@@ -1,0 +1,60 @@
+server:
+    address: tcp://:9091/
+    endpoints:
+        authz:
+            forward-auth:
+                implementation: ForwardAuth
+                authn_strategies:
+                    - name: HeaderAuthorization
+                      schemes: [Bearer]
+log:
+    level: warn
+identity_validation:
+    reset_password:
+        jwt_secret: {{ secret "/secrets/internal/identity_validation.reset_password.jwt.hmac.key" | quote }}
+authentication_backend:
+    password_reset:
+        disable: true
+    file:
+        path: /secrets/identity/users.yml
+access_control:
+    default_policy: deny
+    rules:
+        - domain: glass.example.com
+          policy: one_factor
+session:
+    secret: {{ secret "/secrets/internal/session.encryption.key" | quote }}
+    cookies:
+        - domain: example.com
+          authelia_url: https://auth.example.com
+          default_redirection_url: https://glass.example.com
+storage:
+    encryption_key: {{ secret "/secrets/internal/storage.encryption.key" | quote }}
+    local:
+        path: /config/db.sqlite3
+notifier:
+    filesystem:
+        filename: /config/notifications.txt
+identity_providers:
+    oidc:
+        hmac_secret: {{ secret "/secrets/internal/identity_providers.oidc.hmac.key" | quote }}
+        jwks:
+            - algorithm: RS256
+              use: sig
+              key: {{ secret "/secrets/identity/oidc.pem" | mindent 16 "|" | msquote }}
+        clients:
+            - client_id: glass
+              client_name: Glass
+              public: true
+              authorization_policy: one_factor
+              require_pkce: true
+              pkce_challenge_method: S256
+              require_pushed_authorization_requests: true
+              redirect_uris: [https://glass.example.com/auth/callback]
+              scopes: [authelia.bearer.authz, offline_access]
+              audience: [https://glass.example.com]
+              grant_types: [authorization_code, refresh_token]
+              response_types: [code]
+              response_modes: [form_post]
+              consent_mode: explicit
+              token_endpoint_auth_method: none

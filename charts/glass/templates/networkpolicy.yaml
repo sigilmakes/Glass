@@ -1,0 +1,31 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    name: {{ include "glass.name" . }}-couchdb
+spec:
+    podSelector:
+        matchLabels:
+            app: {{ include "glass.name" . }}-couchdb
+    policyTypes: [Ingress]
+    ingress:
+        - from:
+              - podSelector:
+                    matchLabels:
+                        app: {{ include "glass.name" . }}
+          ports:
+              - protocol: TCP
+                port: 5984
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    name: {{ include "glass.name" . }}
+spec:
+    podSelector:
+        matchLabels:
+            app: {{ include "glass.name" . }}
+    policyTypes: [Ingress]
+    ingress:
+        {{- toYaml .Values.networkPolicy.gatewayIngress | nindent 8 }}
+{{- end }}

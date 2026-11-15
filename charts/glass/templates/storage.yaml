@@ -1,0 +1,22 @@
+{{- range $component := list "gateway" "couchdb" }}
+{{- $storage := index $.Values.storage $component }}
+{{- if not $storage.existingClaim }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: {{ include "glass.name" $ }}-{{ $component }}
+    annotations:
+        helm.sh/resource-policy: keep
+    labels:
+        {{- include "glass.labels" $ | nindent 8 }}
+spec:
+    accessModes: [ReadWriteOnce]
+    {{- if ne $storage.storageClass nil }}
+    storageClassName: {{ $storage.storageClass | quote }}
+    {{- end }}
+    resources:
+        requests:
+            storage: {{ $storage.size }}
+{{- end }}
+{{- end }}

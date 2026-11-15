@@ -1,0 +1,10 @@
+image:
+    repository: registry.example.com/glass
+    tag: "0.1.0"
+publicUrl: https://glass.example.com
+auth:
+    issuer: https://auth.example.com
+    clientId: glass
+    audience: https://glass.example.com
+secrets:
+    existingSecret: glass-couchdb

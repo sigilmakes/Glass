@@ -1,0 +1,12 @@
+apiVersion: v2
+name: glass
+description: Private Obsidian LiveSync gateway with dedicated CouchDB
+version: 0.1.0
+appVersion: "0.1.0"
+type: application
+kubeVersion: ">=1.30.0-0"
+dependencies:
+    - name: authelia
+      version: 0.11.22
+      repository: https://charts.authelia.com
+      condition: authelia.enabled

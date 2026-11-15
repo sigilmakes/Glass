@@ -1,0 +1,60 @@
+server:
+    address: tcp://:9091/
+    endpoints:
+        authz:
+            forward-auth:
+                implementation: ForwardAuth
+                authn_strategies:
+                    - name: HeaderAuthorization
+                      schemes: [Bearer]
+log:
+    level: warn
+identity_validation:
+    reset_password:
+        jwt_secret: {{ secret "/secrets/reset-password" | quote }}
+authentication_backend:
+    password_reset:
+        disable: true
+    file:
+        path: /secrets/users.yml
+access_control:
+    default_policy: deny
+    rules:
+        - domain: glass.localhost
+          policy: one_factor
+session:
+    secret: {{ secret "/secrets/session-secret" | quote }}
+    cookies:
+        - domain: glass.localhost
+          authelia_url: https://auth.glass.localhost:8443
+          default_redirection_url: https://glass.localhost:8443
+storage:
+    encryption_key: {{ secret "/secrets/storage-key" | quote }}
+    local:
+        path: /data/db.sqlite3
+notifier:
+    filesystem:
+        filename: /data/notifications.txt
+identity_providers:
+    oidc:
+        hmac_secret: {{ secret "/secrets/oidc-hmac" | quote }}
+        jwks:
+            - algorithm: RS256
+              use: sig
+              key: {{ secret "/secrets/oidc.pem" | mindent 16 "|" | msquote }}
+        clients:
+            - client_id: glass
+              client_name: Glass local development
+              public: true
+              authorization_policy: one_factor
+              require_pkce: true
+              pkce_challenge_method: S256
+              require_pushed_authorization_requests: true
+              redirect_uris: [https://glass.localhost:8443/auth/callback]
+              scopes: [authelia.bearer.authz, offline_access]
+              audience: [https://glass.localhost:8443]
+              grant_types: [authorization_code, refresh_token]
+              response_types: [code]
+              response_modes: [form_post]
+              consent_mode: explicit
+              token_endpoint_auth_method: none

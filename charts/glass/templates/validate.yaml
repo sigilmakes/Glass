@@ -1,0 +1,12 @@
+{{- $_ := required "image.repository is required" .Values.image.repository -}}
+{{- $_ := required "image.tag is required (use an immutable version)" .Values.image.tag -}}
+{{- $_ := required "publicUrl is required" .Values.publicUrl -}}
+{{- $_ := required "auth.issuer is required" .Values.auth.issuer -}}
+{{- $_ := required "auth.audience is required" .Values.auth.audience -}}
+{{- $_ := required "secrets.existingSecret is required" .Values.secrets.existingSecret -}}
+{{- if not (hasPrefix "https://" .Values.publicUrl) }}{{ fail "publicUrl must use HTTPS" }}{{ end -}}
+{{- if not (hasPrefix "https://" .Values.auth.issuer) }}{{ fail "auth.issuer must use HTTPS" }}{{ end -}}
+{{- if .Values.authelia.enabled -}}
+{{- $_ := required "bundled Authelia requires authelia.configMap.existingConfigMap" .Values.authelia.configMap.existingConfigMap -}}
+{{- $_ := required "bundled Authelia requires authelia.secret.existingSecret" .Values.authelia.secret.existingSecret -}}
+{{- end -}}

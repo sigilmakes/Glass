@@ -1,0 +1,57 @@
+image:
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+imagePullSecrets: []
+publicUrl: ""
+auth:
+    issuer: ""
+    authzUrl: ""
+    clientId: glass
+    audience: ""
+secrets:
+    existingSecret: ""
+    adminUsernameKey: couchdb-admin-username
+    adminPasswordKey: couchdb-admin-password
+    proxySecretKey: couchdb-proxy-secret
+storage:
+    gateway:
+        size: 1Gi
+        storageClass: null
+        existingClaim: ""
+    couchdb:
+        size: 10Gi
+        storageClass: null
+        existingClaim: ""
+couchdb:
+    image: couchdb:3.5.1
+resources:
+    gateway: {}
+    couchdb: {}
+ingress:
+    enabled: false
+    className: ""
+    host: ""
+    tlsSecretName: ""
+    annotations: {}
+networkPolicy:
+    enabled: false
+    gatewayIngress: []
+# Passed directly to the pinned official upstream chart. No generated secrets.
+authelia:
+    enabled: false
+    pod:
+        kind: Deployment
+        replicas: 1
+        strategy:
+            type: Recreate
+    configMap:
+        existingConfigMap: ""
+        identity_providers:
+            oidc:
+                enabled: true
+    secret:
+        existingSecret: ""
+    persistence:
+        enabled: true
+        size: 1Gi
