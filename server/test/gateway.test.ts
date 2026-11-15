@@ -77,3 +77,29 @@ test('failed rebuild closes access and owner can retry', async t => {
     assert.equal((await fetch(`${url}/api/v1/vaults/${vault.id}/rebuild`, { method: 'POST', headers })).status, 200);
     assert.equal(catalog.get(vault.id, owner.id)!.state, 'ready');
 });
+
+
+test('internal authz endpoint preserves the public request resource, ignoring client forwarding headers', async t => {
+    let forwarded: import('node:http').IncomingHttpHeaders = {};
+    const auth = createServer((req, res) => {
+        forwarded = req.headers;
+        res.writeHead(200, { 'Remote-User': 'alice' }); res.end();
+    });
+    const endpoint = await listen(auth);
+    const cfg = config('http://127.0.0.1:1', 'http://127.0.0.1:1');
+    cfg.authzUrl = endpoint + '/api/authz/forward-auth';
+    const catalog = new Catalog(':memory:');
+    const gateway = createGateway(cfg, catalog, new Couch(cfg));
+    const url = await listen(gateway);
+    t.after(async () => { await close(gateway); await close(auth); catalog.close(); });
+    const response = await fetch(url + '/api/v1/me?view=profile', { headers: {
+        Authorization: 'Bearer alice', Host: 'attacker.invalid',
+        'X-Forwarded-Host': 'attacker.invalid', 'X-Forwarded-Proto': 'http', 'X-Forwarded-Uri': '/admin',
+    } });
+    assert.equal(response.status, 200);
+    assert.equal(forwarded['x-forwarded-host'], 'glass.example');
+    assert.equal(forwarded['x-forwarded-proto'], 'https');
+    assert.equal(forwarded['x-forwarded-method'], 'GET');
+    assert.equal(forwarded['x-forwarded-uri'], '/api/v1/me?view=profile');
+    assert.equal(forwarded.authorization, 'Bearer alice');
+});

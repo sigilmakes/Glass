@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 
 export interface Config {
-    publicUrl: string; issuer: string; clientId: string; audience: string;
+    publicUrl: string; issuer: string; clientId: string; audience: string; authzUrl?: string;
     couchUrl: string; adminUsername: string; adminPassword: string; proxySecret: string;
     sqlitePath: string; host: string; port: number;
 }
@@ -20,10 +20,18 @@ export function loadConfig(env = process.env): Config {
         }
         return value.origin;
     };
+    let authzUrl: string | undefined;
+    if (env.AUTH_AUTHZ_URL) {
+        const endpoint = new URL(env.AUTH_AUTHZ_URL);
+        if (!['https:', 'http:'].includes(endpoint.protocol) || endpoint.username || endpoint.password || endpoint.search || endpoint.hash) {
+            throw new Error('AUTH_AUTHZ_URL must be an HTTP(S) endpoint without credentials');
+        }
+        authzUrl = endpoint.href;
+    }
     const proxySecret = secret('COUCHDB_PROXY_SECRET');
     if (proxySecret.length < 32) throw new Error('COUCHDB_PROXY_SECRET must contain at least 32 characters');
     return {
-        publicUrl: url('PUBLIC_URL'), issuer: url('AUTH_ISSUER'), clientId: required('AUTH_CLIENT_ID'),
+        publicUrl: url('PUBLIC_URL'), issuer: url('AUTH_ISSUER'), authzUrl, clientId: required('AUTH_CLIENT_ID'),
         audience: required('AUTH_AUDIENCE'), couchUrl: url('COUCHDB_URL'),
         adminUsername: required('COUCHDB_ADMIN_USERNAME'), adminPassword: secret('COUCHDB_ADMIN_PASSWORD'),
         proxySecret, sqlitePath: env.SQLITE_PATH ?? '/data/glass.sqlite',

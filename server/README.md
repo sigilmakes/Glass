@@ -1,6 +1,6 @@
 # Glass gateway
 
-SSO-enabled self-hosted livesync for obsidian.
+Authenticates Glass clients through Authelia and proxies replication to CouchDB.
 
 ## Run
 

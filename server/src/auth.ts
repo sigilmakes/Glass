@@ -4,7 +4,7 @@ import type { Config } from './config.ts';
 export async function authenticate(req: IncomingMessage, config: Config): Promise<string | undefined> {
     const authorization = req.headers.authorization;
     if (!authorization || !/^Bearer [A-Za-z0-9._~+/-]+=*$/i.test(authorization)) return;
-    const response = await fetch(`${config.issuer}/api/authz/forward-auth`, {
+    const response = await fetch(config.authzUrl ?? `${config.issuer}/api/authz/forward-auth`, {
         method: 'GET', redirect: 'manual', signal: AbortSignal.timeout(10000),
         headers: {
             Authorization: authorization,

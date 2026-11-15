@@ -5,7 +5,8 @@
 | Variable | Meaning |
 | --- | --- |
 | `PUBLIC_URL` | Gateway HTTP(S) origin, no path; HTTPS in production |
-| `AUTH_ISSUER` | Stock Authelia HTTP(S) origin |
+| `AUTH_ISSUER` | Public stock Authelia HTTP(S) origin |
+| `AUTH_AUTHZ_URL` | Optional internal forward-auth endpoint; defaults to `${AUTH_ISSUER}/api/authz/forward-auth` |
 | `AUTH_CLIENT_ID` | Public OIDC client ID |
 | `AUTH_AUDIENCE` | OAuth audience configured in Authelia |
 | `COUCHDB_URL` | Dedicated CouchDB 3.5 (tested) HTTP(S) origin, private network only |
@@ -37,7 +38,10 @@ manual return link. OAuth errors return a generic failure without reflecting tok
 Every API and sync request delegates its bearer token to stock Authelia's
 `/api/authz/forward-auth`, using `Authorization: Bearer ...` and server-generated
 `X-Forwarded-Method`, `X-Forwarded-Proto`, `X-Forwarded-Host`, `X-Forwarded-Uri`.
-The configured public origin and actual request path are preserved. Authelia must
+The configured public origin and actual request path are preserved. Set
+`AUTH_AUTHZ_URL=http://authelia:9091/api/authz/forward-auth` on a private network
+when a public reverse proxy would overwrite forwarded headers. Keep this endpoint
+operator-controlled; clients cannot select it. Authelia must
 have bearer authorization enabled for this endpoint and allow this public resource.
 The OIDC client must request `authelia.bearer.authz` and configure the matching
 audience/resource for both `/api/v1/` and `/sync/`. Missing `Remote-User`, redirects,
