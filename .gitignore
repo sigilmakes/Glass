@@ -1,0 +1,12 @@
+node_modules/
+server/dist/
+plugin/main.js
+plugin/main.js.map
+plugin/.env
+plugin/node_modules/
+.env
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+coverage/
+artifacts/
