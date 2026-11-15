@@ -7,6 +7,7 @@ import type { Confirm } from "@vrtmrz/livesync-commonlib/compat/interfaces/Confi
 import { requestUrl, type RequestUrlParam } from "@/deps";
 import { compatGlobal } from "@vrtmrz/livesync-commonlib/compat/common/coreEnvFunctions";
 import { createNativeRequestHeaders } from "./nativeRequestHeaders";
+import { GlassSession } from "@/glass/GlassSession";
 // All Services will be migrated to be based on Plain Services, not Injectable Services.
 // This is a migration step.
 
@@ -18,6 +19,20 @@ declare module "obsidian" {
 }
 
 export class ObsidianAPIService extends InjectableAPIService<ObsidianServiceContext> {
+    private glassSession?: GlassSession;
+    get glass(): GlassSession {
+        if (!this.glassSession) {
+            const app = this.context.app;
+            const vaultKey = Array.from(
+                new TextEncoder().encode(`${app.appId ?? ""}-${app.vault.getName()}`),
+                (value) => value.toString(16).padStart(2, "0")
+            ).join("");
+            this.glassSession = new GlassSession(app.secretStorage, `glass-${vaultKey}`, (url, options) =>
+                this.rawNativeFetch(url, options)
+            );
+        }
+        return this.glassSession;
+    }
     _customHandler: ObsHttpHandler | undefined;
     _confirmInstance: Confirm;
     constructor(context: ObsidianServiceContext) {
@@ -144,7 +159,15 @@ export class ObsidianAPIService extends InjectableAPIService<ObsidianServiceCont
      * In Obsidian, we will use the native `requestUrl` function as the default fetch handler,
      * to address unavoidable CORS issues.
      */
+    override async webCompatFetch(req: string | Request, opts?: RequestInit): Promise<Response> {
+        return this.glass.transport(req, opts, (url, options) => super.webCompatFetch(url, options));
+    }
+
     override async nativeFetch(req: string | Request, opts?: RequestInit): Promise<Response> {
+        return this.glass.transport(req, opts, (url, options) => this.rawNativeFetch(url, options));
+    }
+
+    private async rawNativeFetch(req: string | Request, opts?: RequestInit): Promise<Response> {
         const url = typeof req === "string" ? req : req.url;
         let body: string | ArrayBuffer | undefined = undefined;
         const method =
@@ -193,7 +216,7 @@ export class ObsidianAPIService extends InjectableAPIService<ObsidianServiceCont
             contentType: contentType,
         };
         const r = await requestUrl({ ...requestParam, throw: false });
-        return new Response(r.arrayBuffer, {
+        return new Response([204, 205, 304].includes(r.status) ? null : r.arrayBuffer, {
             headers: r.headers,
             status: r.status,
             statusText: `${r.status}`,

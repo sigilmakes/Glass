@@ -1,3 +1,4 @@
+import { isGlassRemote } from "@/glass/settings";
 import { requestToCouchDBWithCredentials } from "@/common/utils";
 import { $msg } from "@/common/translation";
 import {
@@ -33,6 +34,12 @@ export const checkConfig = async (
         tmpDiv.textContent = msg;
         checkResultDiv?.appendChild(tmpDiv);
     };
+    if (isGlassRemote(editingSettings.couchDB_URI)) {
+        addResult(
+            "Glass manages CouchDB configuration on the server. Administrator checks are not available through the sync gateway."
+        );
+        return;
+    }
     try {
         if (isCloudantURI(editingSettings.couchDB_URI)) {
             Logger($msg("obsidianLiveSyncSettingTab.logCannotUseCloudant"), LOG_LEVEL_NOTICE);

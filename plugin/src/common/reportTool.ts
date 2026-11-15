@@ -1,3 +1,4 @@
+import { isGlassRemote } from "@/glass/settings";
 import { redactTurnSettingsForReport } from "./turnSettingsPrivacy";
 import { REMOTE_COUCHDB, REMOTE_MINIO } from "@vrtmrz/livesync-commonlib/compat/common/models/setting.const";
 import { DEFAULT_SETTINGS, type ObsidianLiveSyncSettings } from "@vrtmrz/livesync-commonlib/settings";
@@ -28,7 +29,7 @@ function redactObject(obj: Record<string, unknown>, dotted: string, redactedValu
 export async function generateReport(settings: ObsidianLiveSyncSettings, core: LiveSyncBaseCore) {
     let responseConfig: Record<string, unknown> = {};
     const REDACTED = "𝑅𝐸𝐷𝐴𝐶𝑇𝐸𝐷";
-    if (settings.remoteType == REMOTE_COUCHDB) {
+    if (settings.remoteType == REMOTE_COUCHDB && !isGlassRemote(settings.couchDB_URI)) {
         try {
             const credential = generateCredentialObject(settings);
             const customHeaders = parseHeaderValues(settings.couchDB_CustomHeaders);

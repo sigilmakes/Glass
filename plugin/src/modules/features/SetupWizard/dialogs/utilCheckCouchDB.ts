@@ -1,3 +1,4 @@
+import { isGlassRemote } from "@/glass/settings";
 import { requestToCouchDBWithCredentials } from "@/common/utils";
 import { $msg } from "@/common/translation";
 import { Logger } from "@vrtmrz/livesync-commonlib/compat/common/logger";
@@ -97,6 +98,13 @@ export const checkConfig = async (editingSettings: ObsidianLiveSyncSettings) => 
         );
     };
 
+    if (isGlassRemote(editingSettings.couchDB_URI)) {
+        addMessage(
+            "Glass manages CouchDB configuration on the server. Administrator checks are not available through the sync gateway.",
+            []
+        );
+        return result;
+    }
     addMessage($msg("obsidianLiveSyncSettingTab.logCheckingDbConfig"));
 
     try {

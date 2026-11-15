@@ -119,6 +119,7 @@ export type ApplySettingsWithInitialisationChoiceOptions = {
  * Setup Manager to handle onboarding and configuration setup
  */
 export class SetupManager extends AbstractModule {
+    openGlassSetup?: () => void;
     private p2pSetupConnectionProbe?: P2PConnectionProbeAdmission;
 
     // /**
@@ -179,7 +180,11 @@ export class SetupManager extends AbstractModule {
      * Starts the onboarding process
      * @returns Promise that resolves to true if onboarding completed successfully, false otherwise
      */
-    async startOnBoarding(): Promise<boolean> {
+    async startOnBoarding(useGlass = true): Promise<boolean> {
+        if (useGlass && this.openGlassSetup) {
+            this.openGlassSetup();
+            return false;
+        }
         const isUserNewOrExisting = await this.dialogManager.openWithExplicitCancel(Intro);
         if (isUserNewOrExisting === "new-user") {
             await this.onOnboard(UserMode.NewUser);
@@ -422,9 +427,7 @@ export class SetupManager extends AbstractModule {
                 partial.encryptInternalMetadata = e2eeConf.encryptInternalMetadata;
             }
             if (plaintextReceiptPreferenceChanged) {
-                partial.acceptUnencryptedContent = normaliseAcceptUnencryptedContent(
-                    e2eeConf.acceptUnencryptedContent
-                );
+                partial.acceptUnencryptedContent = normaliseAcceptUnencryptedContent(e2eeConf.acceptUnencryptedContent);
             }
             await this.services.setting.applyPartial(partial, true);
             return true;
@@ -502,7 +505,10 @@ export class SetupManager extends AbstractModule {
         const enableUnencryptedContent =
             newConf.encrypt === true &&
             normaliseAcceptUnencryptedContent(newConf.acceptUnencryptedContent) &&
-            !(this.settings.encrypt === true && normaliseAcceptUnencryptedContent(this.settings.acceptUnencryptedContent));
+            !(
+                this.settings.encrypt === true &&
+                normaliseAcceptUnencryptedContent(this.settings.acceptUnencryptedContent)
+            );
         let userMode = _userMode;
         if (userMode === UserMode.Unknown) {
             if (isObjectDifferent(this.settings, newConf, true) === false) {

@@ -1,7 +1,7 @@
 {
-    "name": "obsidian-livesync",
-    "version": "1.0.50",
-    "description": "Reflect your vault changes to some other devices immediately. Please make sure to disable other synchronize solutions to avoid content corruption or duplication.",
+    "name": "glass-sync",
+    "version": "0.1.0",
+    "description": "SSO-enabled self-hosted livesync for obsidian",
     "main": "main.js",
     "type": "module",
     "scripts": {
@@ -142,7 +142,8 @@
         "test:e2e:obsidian:upgrade-livesync-batching": "tsx test/e2e-obsidian/scripts/upgrade-livesync-batching.ts",
         "pretest:browser-ui-lifecycle": "svelte-check --tsconfig test/browser-apps/ui-lifecycle/tsconfig.json --fail-on-warnings && vite build --config test/browser-apps/ui-lifecycle/vite.config.ts",
         "test:browser-ui-lifecycle": "deno test -A --no-check --frozen --config test/browser-apps/deno.json --lock test/browser-apps/deno.lock test/browser-apps/ui-lifecycle/browser-ui-lifecycle.test.ts",
-        "test:e2e:obsidian:p2p-nfc": "tsx test/e2e-obsidian/scripts/run-compose-p2p-nfc.ts"
+        "test:e2e:obsidian:p2p-nfc": "tsx test/e2e-obsidian/scripts/run-compose-p2p-nfc.ts",
+        "test:glass": "vitest run --config vitest.config.unit.ts src/glass src/modules/services/ObsidianAPIService.unit.spec.ts"
     },
     "keywords": [],
     "author": "vorotamoroz",

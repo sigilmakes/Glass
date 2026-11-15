@@ -37,7 +37,12 @@ import type { ObsidianServiceContext } from "./ObsidianServiceContext";
 
 function createService(workspace: Record<string, unknown>, isMobile = false): ObsidianAPIService {
     return new ObsidianAPIService({
-        app: { workspace, isMobile },
+        app: {
+            workspace,
+            isMobile,
+            vault: { getName: () => "test" },
+            secretStorage: { getSecret: () => null, setSecret: () => {} },
+        },
     } as unknown as ObsidianServiceContext);
 }
 
@@ -259,5 +264,20 @@ describe("ObsidianAPIService.registerCleanup", () => {
         expect(cleanup).not.toHaveBeenCalled();
         register.mock.calls[0][0]();
         expect(cleanup).toHaveBeenCalledOnce();
+    });
+});
+
+describe("Glass host transport", () => {
+    it.each(["nativeFetch", "webCompatFetch"] as const)("routes %s through the device session", async (method) => {
+        const service = createService({});
+        const response = Response.json({ ok: true });
+        const hook = vi.spyOn(service.glass, "transport").mockResolvedValue(response);
+        const options = { method: "GET", cache: "no-store" as const };
+        expect(await service[method]("https://glass.example.com/sync/glass_abc/_changes", options)).toBe(response);
+        expect(hook).toHaveBeenCalledWith(
+            "https://glass.example.com/sync/glass_abc/_changes",
+            options,
+            expect.any(Function)
+        );
     });
 });

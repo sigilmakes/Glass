@@ -17,7 +17,7 @@ import { ModuleObsidianGlobalHistory } from "./modules/features/ModuleGlobalHist
 import { LocalDatabaseMaintenance } from "./features/LocalDatabaseMainte/CmdLocalDatabaseMainte.ts";
 import type { InjectableServiceHub } from "@vrtmrz/livesync-commonlib/compat/services/implements/injectable/InjectableServiceHub";
 import { ObsidianServiceHub } from "./modules/services/ObsidianServiceHub.ts";
-import { ServiceRebuilder } from "@vrtmrz/livesync-commonlib/compat/serviceModules/Rebuilder";
+import { GlassRebuilder } from "./glass/GlassRebuilder";
 import { ServiceDatabaseFileAccess } from "@/serviceModules/DatabaseFileAccess.ts";
 import { ServiceFileAccessObsidian } from "@/serviceModules/ServiceFileAccessImpl.ts";
 import { StorageAccessManager } from "@vrtmrz/livesync-commonlib/compat/managers/StorageProcessingManager";
@@ -57,6 +57,8 @@ import { SyncGuardOverlay } from "./serviceFeatures/syncGuard/SyncGuardOverlay";
 import { useStartupLifecycleFeature } from "./serviceFeatures/startupLifecycle";
 import { useJoinedDevicesFeature } from "./serviceFeatures/useJoinedDevices";
 import { useDatabaseDiagnosticsFeature } from "./serviceFeatures/useDatabaseDiagnostics";
+import { GlassSetup } from "./glass/GlassSetup";
+import type { ObsidianAPIService } from "./modules/services/ObsidianAPIService";
 export type LiveSyncCore = LiveSyncBaseCore<ObsidianServiceContext, LiveSyncCommands>;
 export default class ObsidianLiveSyncPlugin extends Plugin {
     core: LiveSyncCore;
@@ -121,7 +123,7 @@ export default class ObsidianLiveSyncPlugin extends Plugin {
             storageAccess: storageAccess,
             fileReflectionProvenance: createFileReflectionProvenance(services.keyValueDB, true),
         });
-        const rebuilder = new ServiceRebuilder({
+        const rebuilder = new GlassRebuilder({
             path: services.path,
             events: services.context.events,
             API: services.API,
@@ -190,6 +192,28 @@ export default class ObsidianLiveSyncPlugin extends Plugin {
                 const curriedFeature = () => featuresInitialiser(core);
                 core.services.appLifecycle.onLayoutReady.addHandler(curriedFeature);
                 const setupManager = core.getModule(SetupManager);
+                const glass = (serviceHub.API as ObsidianAPIService).glass;
+                const openGlass = () => new GlassSetup(this, glass).open();
+                setupManager.openGlassSetup = openGlass;
+                core.services.appLifecycle.onLoaded.addHandler(() => {
+                    this.addCommand({
+                        id: "glass-sign-in",
+                        name: "Sign in and choose a remote vault",
+                        callback: openGlass,
+                    });
+                    this.registerObsidianProtocolHandler("glass-auth", (params) => {
+                        void glass
+                            .callback(params)
+                            .then(() => {
+                                new Notice("Signed in to Glass. Choose a remote vault.");
+                                openGlass();
+                            })
+                            .catch(
+                                () => new Notice("Glass sign-in failed. Start sign-in again on the original vault.")
+                            );
+                    });
+                    return Promise.resolve(true);
+                });
                 const createInteractiveP2PReplication = createOpenReplicationUI(this.app);
                 const replicator = useP2PReplicatorFeature(
                     core,
