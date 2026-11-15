@@ -1,6 +1,6 @@
 # Upgrades and releases
 
-The root package, Glass plug-in manifest, server, and chart share a release version. LiveSync's original version is recorded separately in `UPSTREAM.md`. Do not replace upstream attribution with Glass authorship.
+The root package, Glass plugin manifest, server, and chart share a release version. LiveSync's original version is recorded separately in `UPSTREAM.md`. Do not replace upstream attribution with Glass authorship.
 
 ## Before an upgrade
 
@@ -17,5 +17,5 @@ npm run chart:check
 npm run release:package
 ```
 
-This produces the plug-in files/ZIP, a packaged Helm chart, and a local gateway image. Packaging does not publish or deploy anything.
+This produces the plugin files/ZIP, a packaged Helm chart, and a local gateway image. Packaging does not publish or deploy anything.
 

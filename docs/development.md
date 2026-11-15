@@ -1,6 +1,6 @@
 # Development
 
-Use Node.js 24 and npm. The root package coordinates two independent locked npm packages: `server/` and upstream's `plugin/`. The plug-in retains its existing nested workspaces.
+Use Node.js 24 and npm. The root package coordinates two independent locked npm packages: `server/` and upstream's `plugin/`. The plugin retains its existing nested workspaces.
 
 ```sh
 npm run install:all

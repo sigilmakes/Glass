@@ -4,4 +4,4 @@ The upstream version and source commit are recorded in [UPSTREAM.md](../UPSTREAM
 
 Compare a new upstream release with that baseline, merge the changes into `plugin/`, and update the recorded version. Preserve the original licence and attribution.
 
-Run the plug-in checks and integration tests after an update. Check that all Glass requests still use the authenticated transport and that device credentials remain outside exported settings.
+Run the plugin checks and integration tests after an update. Check that all Glass requests still use the authenticated transport and that device credentials remain outside exported settings.

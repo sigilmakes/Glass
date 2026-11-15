@@ -24,7 +24,7 @@ steps:
       command: npm run check
     - name: Run tests
       command: npm test
-    - name: Build plug-in and gateway
+    - name: Build plugin and gateway
       command: npm run build
     - name: Validate Helm chart
       command: npm run chart:check

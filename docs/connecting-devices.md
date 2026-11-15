@@ -5,7 +5,7 @@ Glass runs inside an ordinary local Obsidian vault. It does not replace Obsidian
 ## Download an existing vault
 
 1. Create an empty local vault in Obsidian.
-2. Enable community plug-ins and install the Glass release files in its plug-in directory, then enable Glass.
+2. Enable community plugins and install the Glass release files in its plugin directory, then enable Glass.
 3. Open Glass sign-in, enter the server URL, and authenticate in the browser through Authelia.
 4. Return to Obsidian when the browser offers the return link.
 5. Select the remote vault to download and follow the existing-device Fetch path.
@@ -26,6 +26,6 @@ Your administrator creates your Authelia account. Glass provisions its local pro
 
 Mobile synchronisation requires Obsidian to be running. Do not assume Android will keep it running indefinitely in the background. Sign out or ask the administrator to disable the account when access must be revoked; upstream's Forget device action alone does not revoke credentials.
 
-## Plug-in distribution
+## Plugin distribution
 
-Use the built `main.js`, `manifest.json`, and `styles.css` together, or the versioned release ZIP. The plug-in ID is `glass-sync`, distinct from upstream LiveSync. Do not enable both against the same local vault simultaneously. Android installation and browser return behaviour must be tested with the chosen release and packaging.
+Use the built `main.js`, `manifest.json`, and `styles.css` together, or the versioned release ZIP. The plugin ID is `glass-sync`, distinct from upstream LiveSync. Do not enable both against the same local vault simultaneously. Android installation and browser return behaviour must be tested with the chosen release and packaging.

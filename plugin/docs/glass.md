@@ -10,7 +10,7 @@ Use **Advanced LiveSync setup** for the upstream configuration flow. Glass does 
 
 ## Credentials and other devices
 
-Every device signs in separately. Sessions and pending PKCE state use Obsidian's public `App.secretStorage`, introduced in 1.11.4. There is no plaintext fallback. Credentials are not placed in plug-in settings, Setup URIs, or synchronised settings. SecretStorage is application storage shared with installed plug-ins; Glass does not guarantee OS-backed encryption or isolation from other plug-ins.
+Every device signs in separately. Sessions and pending PKCE state use Obsidian's public `App.secretStorage`, introduced in 1.11.4. There is no plaintext fallback. Credentials are not placed in plugin settings, Setup URIs, or synchronised settings. SecretStorage is application storage shared with installed plugins; Glass does not guarantee OS-backed encryption or isolation from other plugins.
 
 Sign-in uses public-client PKCE S256, PAR, stock Authelia bearer scopes, and a browser callback containing only the code and state. Pending state expires after ten minutes. Refresh operations are serialised, and replacement tokens are stored before another refresh can start. Glass refreshes thirty seconds before expiry. An uncertain refresh failure requires signing in again rather than replaying a possibly consumed token.
 

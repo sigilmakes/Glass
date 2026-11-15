@@ -8,7 +8,7 @@ Glass adds Authelia sign-in and private, user-owned vaults to [Self-hosted LiveS
 
 ```mermaid
 flowchart LR
-    O["Obsidian + Glass plug-in"] --> G["Glass gateway"]
+    O["Obsidian + Glass plugin"] --> G["Glass gateway"]
     G -->|Authentication| A["Authelia"]
     G -->|Vault sync| C["CouchDB"]
 ```
@@ -26,7 +26,7 @@ Users can create and sync their own private vaults. Sign in with Authelia, then 
    helm upgrade --install glass charts/glass -f values.yaml
    ```
 
-3. Install the Glass plug-in in your Obsidian vault and sign in. See [connecting devices](docs/connecting-devices.md).
+3. Install the Glass plugin in your Obsidian vault and sign in. See [connecting devices](docs/connecting-devices.md).
 
 [Development](docs/development.md) · [Upgrades](docs/upgrades.md) · [Backups](docs/backup-restore.md)
 

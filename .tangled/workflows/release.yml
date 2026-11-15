@@ -20,5 +20,5 @@ steps:
       command: npm run build && npm run release:package
     - name: Publish configured OCI artifacts
       command: node scripts/publish-release.mjs
-    - name: Attach plug-in and chart release files
+    - name: Attach plugin and chart release files
       command: node scripts/publish-artifacts.mjs

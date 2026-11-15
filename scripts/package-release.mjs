@@ -15,7 +15,7 @@ function run(program, args, cwd) {
 const root = process.cwd();
 const { version } = JSON.parse(readFileSync('package.json', 'utf8'));
 const manifest = JSON.parse(readFileSync('plugin/manifest.json', 'utf8'));
-if (manifest.version !== version) throw new Error('Root and plug-in release versions must match.');
+if (manifest.version !== version) throw new Error('Root and plugin release versions must match.');
 const output = resolve('artifacts');
 mkdirSync(output, { recursive: true });
 for (const file of ['main.js', 'manifest.json', 'styles.css']) {

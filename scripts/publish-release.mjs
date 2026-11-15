@@ -32,4 +32,4 @@ run('docker', ['tag', `glass-server:${version}`, `${image}:${version}`]);
 run('docker', ['push', `${image}:${version}`]);
 run('helm', ['registry', 'login', chartHost, '--username', username, '--password-stdin'], password);
 run('helm', ['push', `artifacts/glass-${version}.tgz`, chartRegistry]);
-console.log(`Published Glass ${version} OCI image and chart. Plug-in assets are in artifacts/.`);
+console.log(`Published Glass ${version} OCI image and chart. Plugin assets are in artifacts/.`);
