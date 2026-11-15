@@ -1,6 +1,6 @@
 # Glass upstream baseline
 
-Glass is derived from Self-hosted LiveSync 1.0.50 by vorotamoroz, imported as a Git subtree. The upstream MIT licence and attribution are retained.
+Glass vendors Self-hosted LiveSync 1.0.50 by vorotamoroz, commit `53281c5fe5f0b1d4da789e622cc2aac2b1994420`. The upstream MIT licence and attribution are retained.
 
 Glass version: 0.1.0. Minimum Obsidian: 1.11.4, which introduced the public `App.secretStorage` API (`getSecret` and `setSecret`). There is no plaintext settings fallback. Device sessions and pending PKCE state live only in Obsidian SecretStorage, not plug-in settings or Setup URIs.
 

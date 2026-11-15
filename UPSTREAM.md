@@ -1,5 +1,5 @@
 # Upstream sources
 
-The plugin is imported from https://github.com/vrtmrz/obsidian-livesync at tag `1.0.50` using a squashed Git subtree under `plugin/`. Its original MIT licence and attribution are retained.
+`plugin/` vendors Self-hosted LiveSync [1.0.50](https://github.com/vrtmrz/obsidian-livesync/releases/tag/1.0.50), commit `53281c5fe5f0b1d4da789e622cc2aac2b1994420`. Its original MIT licence and attribution are retained.
 
-Glass server and distribution code are MIT-licensed. Third-party dependencies retain their own licences.
+Glass original code is MIT-licensed. Dependencies retain their own licences.
