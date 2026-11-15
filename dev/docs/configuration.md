@@ -17,9 +17,11 @@ random test-user passwords, password hashes, RSA OIDC signing key and a seven-da
 self-signed certificate under ignored `dev/.local`. It refuses to overwrite existing
 credentials. Username `developer` uses `dev/.local/developer-password`; username
 `other` uses `dev/.local/other-password`. No fixed password or embedded admin is
-provided. Do not commit this directory or use these users/keys outside this stack.
-The directory is host-owner-only; selected files are readable by the containers'
-different service UIDs. Avoid shared/container-host mounts of this directory.
+provided. These disposable files are kept in ignored `dev/.local/`.
+
+The directory is readable only by its host owner. The gateway receives individual
+file mounts for its credentials and CA, so different host and container UIDs work.
+Run `node --test dev/secret-mount.test.mjs` to check this (Docker required).
 
 Gateway automatically initializes CouchDB and its auth configuration at startup.
 No manual administrator dashboard initialization is needed. Named Docker volumes
