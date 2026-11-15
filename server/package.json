@@ -1,0 +1,7 @@
+{
+  "name": "@glass/server", "version": "0.1.0", "private": true, "type": "module",
+  "description": "SSO-enabled self-hosted livesync for obsidian", "license": "MIT",
+  "engines": { "node": ">=24" },
+  "scripts": { "start": "node src/main.ts", "build": "tsc --noEmit", "check": "tsc --noEmit", "test": "node --test test/*.test.ts", "test:integration": "node --test test/couchdb.integration.ts", "typecheck": "tsc --noEmit" },
+  "devDependencies": { "@types/node": "^24.0.0", "typescript": "^5.9.3" }
+}

@@ -1,0 +1,8 @@
+.git
+**/node_modules
+**/dist
+plugin
+artifacts
+dev/.generated
+.env
+**/*.sqlite*
