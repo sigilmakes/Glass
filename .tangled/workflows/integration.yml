@@ -16,6 +16,8 @@ virtualisation:
 steps:
     - name: Install locked dependencies
       command: npm run install:all
+    - name: Verify development password encoding
+      command: node --test dev/password-hash.test.mjs
     - name: Generate isolated development identities
       command: node dev/init.mjs
     - name: Start stock Authelia, CouchDB and Glass

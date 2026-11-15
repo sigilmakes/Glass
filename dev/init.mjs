@@ -1,5 +1,6 @@
 import { mkdirSync, existsSync, writeFileSync, chmodSync } from 'node:fs';
-import { randomBytes, pbkdf2Sync, generateKeyPairSync } from 'node:crypto';
+import { randomBytes, generateKeyPairSync } from 'node:crypto';
+import { hashPassword } from './password-hash.mjs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
@@ -10,14 +11,12 @@ if (existsSync(directory)) {
 mkdirSync(directory, { mode: 0o700 });
 const save = (name, value) => writeFileSync(`${directory}/${name}`, value, { mode: 0o600 });
 const random = () => randomBytes(48).toString('hex');
-const b64 = value => value.toString('base64').replaceAll('=', '');
 let users = 'users:\n';
 for (const username of ['developer', 'other']) {
     const password = random();
     save(`${username}-password`, password);
-    const salt = randomBytes(16);
-    const hash = pbkdf2Sync(password, salt, 310000, 64, 'sha512');
-    users += `    ${username}:\n        displayname: Local ${username}\n        password: '$pbkdf2-sha512$310000$${b64(salt)}$${b64(hash)}'\n        email: ${username}@glass.localhost\n`;
+    const hash = hashPassword(password);
+    users += `    ${username}:\n        displayname: Local ${username}\n        password: '${hash}'\n        email: ${username}@glass.localhost\n`;
 }
 save('users.yml', users);
 const admin = random();

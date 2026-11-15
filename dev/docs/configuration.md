@@ -72,3 +72,16 @@ docker compose --env-file dev/.local/compose.env -f dev/compose.yaml down
 
 Do not copy this stack's single-factor test users or filesystem notifier into a
 production deployment. Production uses the Helm chart and operator-managed secrets.
+
+## Password fixture regression
+
+```sh
+node --test dev/password-hash.test.mjs
+```
+
+Requires Docker. The deterministic noncredential fixture includes both special
+Base64 symbols. Stock Authelia 4.39.24 rejects standard Base64 and accepts the
+PBKDF2 crypt adapted alphabet (`.` instead of `+`, `/` unchanged, no padding).
+The generator retains PBKDF2-SHA512, 310000 iterations, a random 16-byte salt and
+64-byte key. The regression test never prints a password or digest. See the
+[Authelia password reference](https://www.authelia.com/reference/guides/passwords/).
